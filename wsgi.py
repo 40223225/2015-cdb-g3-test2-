@@ -744,7 +744,7 @@ class Hello(object):
     #@+node:2015.20150625175108.16: *3* mygeartest3
     @cherrypy.expose
     # N 為齒數, M 為模數, P 為壓力角
-    def mygeartest3(self, N=20, m=15, p=5,z=15,x=24,c=None,v=None,o=None,l=None):
+    def mygeartest3(self, N=20, m=15, p=5,z=15,x=24,c=15,v=24,o=None,l=None):
         outstring = '''
     <!DOCTYPE html> 
     <html>
@@ -767,6 +767,20 @@ class Hello(object):
        </select><br/>
     第2齒數:<br />
         <select name="x">
+        '''
+        for j in range(15,81):
+            outstring+=''' <option value="'''+str(j)+'''">'''+str(j)+'''</option>'''
+        outstring+='''
+       </select><br/>
+    第3齒數:<br />
+        <select name="c">
+        '''
+        for j in range(15,81):
+            outstring+=''' <option value="'''+str(j)+'''">'''+str(j)+'''</option>'''
+        outstring+='''
+       </select><br/>
+     第4齒數:<br />
+        <select name="v">
         '''
         for j in range(15,81):
             outstring+=''' <option value="'''+str(j)+'''">'''+str(j)+'''</option>'''
@@ -802,9 +816,16 @@ class Hello(object):
     n_g1 = '''+str(z)+'''
     # 第2齒輪齒數
     n_g2 = '''+str(x)+'''
+    # 第3齒輪齒數
+    n_g3= '''+str(c)+'''
+    # 第4齒輪齒數
+    n_g4= '''+str(v)+'''
+
     # 計算兩齒輪的節圓半徑
     rp_g1 = m*n_g1/2
     rp_g2 = m*n_g2/2
+    rp_g3 = m*n_g3/2
+    rp_g4 = m*n_g4/2
 
     # 繪圖第1齒輪的圓心座標
     x_g1 = 280
@@ -812,6 +833,15 @@ class Hello(object):
     # 第2齒輪的圓心座標, 假設排列成水平, 表示各齒輪圓心 y 座標相同
     x_g2 = x_g1
     y_g2 = y_g1 + rp_g1 + rp_g2
+    # 第3齒輪的圓心座標, 假設排列成水平, 表示各齒輪圓心 y 座標相同
+    x_g3= x_g1 + rp_g2+rp_g3
+    y_g3 = y_g1 + rp_g1 + rp_g2
+    # 第4齒輪的圓心座標, 假設排列成水平, 表示各齒輪圓心 y 座標相同
+    x_g4 = x_g1+ rp_g2+rp_g3
+    y_g4 = y_g1  + rp_g1 + rp_g2+ rp_g3+rp_g4
+
+
+
 
     # 將第1齒輪順時鐘轉 90 度
     # 使用 ctx.save() 與 ctx.restore() 以確保各齒輪以相對座標進行旋轉繪圖
@@ -836,9 +866,33 @@ class Hello(object):
     spur.Spur(ctx).Gear(x_g2, y_g2, rp_g2, n_g2, pa, "black")
     ctx.restore()
 
+    # 將第3齒輪順時鐘轉 90 度
+    # 使用 ctx.save() 與 ctx.restore() 以確保各齒輪以相對座標進行旋轉繪圖
+    ctx.save()
+    # translate to the origin of second gear
+    ctx.translate(x_g3, y_g3)
+    # rotate to engage
+    ctx.rotate(-pi/2-pi/n_g3+(pi/2+pi/n_g2)*n_g2/n_g3)
+    # put it back
+    ctx.translate(-x_g3, -y_g3)
+    spur.Spur(ctx).Gear(x_g3, y_g3, rp_g3, n_g3, pa, "blue")
+    ctx.restore()
+
+    # 將第4齒輪逆時鐘轉 90 度之後, 再多轉一齒, 以便與第1齒輪進行囓合
+    ctx.save()
+    # translate to the origin of second gear
+    ctx.translate(x_g4, y_g4)
+    # rotate to engage
+    ctx.rotate(-pi/n_g4+(-pi/2+pi/n_g3)*n_g3/n_g4-(pi/2+pi/n_g2)*n_g2/n_g4)
+    # put it back
+    ctx.translate(-x_g4, -y_g4)
+    spur.Spur(ctx).Gear(x_g4, y_g4, rp_g4, n_g4, pa, "black")
+    ctx.restore()
+
 
     ctx.font = "10px Verdana";
     ctx.fillText("組員40223239 楊皓宇所繪製",x_g1-60, y_g1-10)
+    ctx.fillText("組員40223225 張育軒所繪製",x_g3-60, y_g3-10)
     # 按照上面三個正齒輪的囓合轉角運算, 隨後的傳動齒輪轉角便可依此類推, 完成6個齒輪的囓合繪圖
 
     </script>
